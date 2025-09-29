@@ -2,6 +2,9 @@
 #include "pch.h"
 #include "dllmain.h"
 
+#include "board.h"
+
+
 BOOL APIENTRY DllMain(
     HMODULE hModule,
 	DWORD  ul_reason_for_call,
@@ -21,45 +24,43 @@ BOOL APIENTRY DllMain(
     return TRUE;
 }
 
-// 目标函数真实签名（务必匹配！）
-using TargetFn = char(*)(int, int, int);
+// 目标函数签名
+typedef void (__thiscall *TargetFn)(void*, int);
+
 // 原函数指针
 static TargetFn gOriginal = nullptr;
 
-
-__declspec(naked) void hook_func()
+/// 按下按键前的钩子
+/// @param _this 类
+/// @param edx 使用fastcall代替thiscall的占位符
+/// @param keycode 按下按键的键码
+void __fastcall hook_func(void* _this, void* edx, int keycode)
 {
-	__asm {
-		//push ebp        // 保存基址指针
-		//mov ebp, esp    // 设置新的栈帧
-		// 保存可能被修改的非易失寄存器
+    uintptr_t p0 = *reinterpret_cast<uintptr_t*>(0x6A9EC0);
+    Board board = *reinterpret_cast<Board*>(p0 + 0x768);
 
-        // 减半阳光消耗
-        shr ebx, 1
+    DWORD* sun = board::get_sun(board);
 
-        // theAmount
-		push ebx
-        // this
-		push edi
+	switch (keycode)
+	{
+	case 65:
+        debug(fmt::format(L"{}", *sun).c_str());
+        break;
 
-		call gOriginal
-
-		// 恢复寄存器
-		pop edi
-		pop ebx
-
-		//leave
-		ret
+    default:
+        break;
 	}
+
+    *sun = 100;
+
+    gOriginal(_this, keycode);
 }
-
-
 
 void at_attach()
 {
     if (MH_Initialize() == MH_OK)
     {
-        LPVOID target = reinterpret_cast<LPVOID>(0x0041BA60);
+        LPVOID target = reinterpret_cast<LPVOID>(0x41B820);
 
         MH_CreateHook(
             target,

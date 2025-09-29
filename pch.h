@@ -9,6 +9,24 @@
 
 // 添加要在此处预编译的标头
 #include "framework.h"
-#include "Windows.h"
+#include <Windows.h>
+#include <string>
+
+#pragma comment(lib, "libMinHook.x86.lib")
+#include <MinHook.h>
+
+#define FMT_HEADER_ONLY 1
+#include <fmt/format.h>
+#include <fmt/xchar.h>
+
+static void debug(const LPCWSTR content)
+{
+	MessageBoxW(
+		nullptr,
+		content,
+		L"debug",
+		MB_OK
+	);
+}
 
 #endif //PCH_H

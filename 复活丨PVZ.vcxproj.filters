@@ -13,6 +13,12 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="源文件\pvz">
+      <UniqueIdentifier>{b182722f-25b5-449f-b6ee-c9c8859b6a58}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\pvz">
+      <UniqueIdentifier>{f10adb1c-9ffb-4109-9e19-685538e43b7a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -24,6 +30,9 @@
     <ClInclude Include="dllmain.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="board.h">
+      <Filter>头文件\pvz</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -31,6 +40,9 @@
     </ClCompile>
     <ClCompile Include="pch.cpp">
       <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="board.cpp">
+      <Filter>源文件\pvz</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
