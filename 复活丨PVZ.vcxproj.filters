@@ -33,6 +33,15 @@
     <ClInclude Include="board.h">
       <Filter>头文件\pvz</Filter>
     </ClInclude>
+    <ClInclude Include="lawn_app.h">
+      <Filter>头文件\pvz</Filter>
+    </ClInclude>
+    <ClInclude Include="coin.h">
+      <Filter>头文件\pvz</Filter>
+    </ClInclude>
+    <ClInclude Include="widget_manager.h">
+      <Filter>头文件\pvz</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -42,6 +51,12 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="board.cpp">
+      <Filter>源文件\pvz</Filter>
+    </ClCompile>
+    <ClCompile Include="lawn_app.cpp">
+      <Filter>源文件\pvz</Filter>
+    </ClCompile>
+    <ClCompile Include="widget_manager.cpp">
       <Filter>源文件\pvz</Filter>
     </ClCompile>
   </ItemGroup>

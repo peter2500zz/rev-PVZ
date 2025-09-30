@@ -1,8 +1,12 @@
-#pragma once
+﻿#pragma once
+#include "coin.h"
 
-using Board = uintptr_t;
+struct Board;
 
-namespace board
-{
-	DWORD* get_sun(Board);
+namespace board {
+	// 我自己实现的函数
+	uint32_t* get_sun(Board* board);
+
+	// 实现的自带函数
+	Coin* AddCoin(Board* board, uint32_t x, uint32_t y, CoinType coin_type, CoinMotion coin_motion);
 }
