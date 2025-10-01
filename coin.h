@@ -43,6 +43,3 @@ enum class CoinMotion : DWORD {
 	SpawnInSeedSlot = 7,   // 在卡槽栏生成
 };
 
-namespace coin {
-
-}
