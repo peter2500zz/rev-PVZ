@@ -13,11 +13,11 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="源文件\pvz">
-      <UniqueIdentifier>{b182722f-25b5-449f-b6ee-c9c8859b6a58}</UniqueIdentifier>
-    </Filter>
     <Filter Include="头文件\pvz">
       <UniqueIdentifier>{f10adb1c-9ffb-4109-9e19-685538e43b7a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\hook">
+      <UniqueIdentifier>{48ea4bd4-5eb1-4914-89ad-66fce64841b3}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -25,9 +25,6 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="pch.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="dllmain.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="board.h">
@@ -48,6 +45,9 @@
     <ClInclude Include="graphics.h">
       <Filter>头文件\pvz</Filter>
     </ClInclude>
+    <ClInclude Include="hook.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -56,20 +56,14 @@
     <ClCompile Include="pch.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="board.cpp">
-      <Filter>源文件\pvz</Filter>
-    </ClCompile>
-    <ClCompile Include="lawn_app.cpp">
-      <Filter>源文件\pvz</Filter>
-    </ClCompile>
-    <ClCompile Include="widget_manager.cpp">
-      <Filter>源文件\pvz</Filter>
-    </ClCompile>
-    <ClCompile Include="zombie.cpp">
-      <Filter>源文件\pvz</Filter>
+    <ClCompile Include="startup.cpp">
+      <Filter>源文件\hook</Filter>
     </ClCompile>
     <ClCompile Include="graphics.cpp">
-      <Filter>源文件\pvz</Filter>
+      <Filter>源文件\hook</Filter>
+    </ClCompile>
+    <ClCompile Include="classlifetime.cpp">
+      <Filter>源文件\hook</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

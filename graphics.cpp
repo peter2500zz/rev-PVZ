@@ -1,136 +1,54 @@
 ﻿#include "pch.h"
+#include "hook.h"
+
 #include "graphics.h"
+#include "zombie.h"
 
 
-void graphics::destructor(Graphics* g)
+namespace
 {
-	using destructor = void(__thiscall*)(Graphics* g);
+	// 僵尸绘制
+	static MID_HOOK post_zombie_draw_origin = nullptr;
 
-	destructor fn = reinterpret_cast<destructor>(0x00586B10);
+	void __stdcall post_zombie_draw(Zombie* zombie, Graphics* g)
+	{
+		// 在Rust版本里必须要创建新的克隆才能正常绘制
+		// C++这里不知道为什么不需要
+		//Graphics* g_1 = graphics::Create(g);
 
-	fn(g);
-}
+		uint32_t* x = zombie::get_hit_x(zombie);
+		uint32_t* y = zombie::get_hit_y(zombie);
+		uint32_t* w = zombie::get_hit_w(zombie);
+		uint32_t* h = zombie::get_hit_h(zombie);
 
-DDImage* graphics::get_DDImage(Graphics* g)
-{
-	return *reinterpret_cast<DDImage**>(reinterpret_cast<uintptr_t>(g) + 0x4);
-}
+		graphics::SetColor(g, color::red());
+		graphics::DrawRect(g, *x, *y, *w, *h);
+		graphics::DrawLine(g, 0, 0, *x, *y);
 
-Color* graphics::get_Color(Graphics* g)
-{
-	return reinterpret_cast<Color*>(reinterpret_cast<uintptr_t>(g) + 0x30);
-}
-
-DrawMode* graphics::get_DrawMode(Graphics* g)
-{
-	return reinterpret_cast<DrawMode*>(reinterpret_cast<uintptr_t>(g) + 0x44);
-}
-
-float_t* graphics::get_mTransX(Graphics* g)
-{
-	return reinterpret_cast<float_t*>(reinterpret_cast<uintptr_t>(g) + 0x8);
-}
-
-float_t* graphics::get_mTransY(Graphics* g)
-{
-	return reinterpret_cast<float_t*>(reinterpret_cast<uintptr_t>(g) + 0xC);
-}
-
-Graphics* graphics::Create(Graphics* g)
-{
-	using Create = Graphics * (__stdcall*)(Graphics* g);
-
-	Create fn = reinterpret_cast<Create>(0x00586C30);
-
-	return fn(g);
-}
-
-void graphics::DrawRect(
-	Graphics* g, 
-	uint32_t theX, 
-	uint32_t theY, 
-	uint32_t theWidth, 
-	uint32_t theHeight
-)
-{
-	__asm {
-		push theHeight
-		push theWidth
-		push theY
-		push theX
-		mov eax, g
-
-		mov edx, 0x00586DE0
-		call edx
+		// 如果克隆了记得清理
+		//graphics::destructor(g_1);
 	}
-}
 
-void graphics::SetColor(Graphics* g, const Color& color)
-{
-	__asm {
-		mov eax, color
-		mov ecx, g
+	__declspec(naked) void post_hook_helper()
+	{
+		__asm {
+			push ebp
+			push ebx
+			call post_zombie_draw
 
-		mov edx, 0x00586CC0
-		call edx
+			jmp post_zombie_draw_origin
+		}
 	}
+
 }
 
-void graphics::DrawLine(
-	Graphics* g,
-	uint32_t theStartX,
-	uint32_t theStartY,
-	uint32_t theEndX,
-	uint32_t theEndY
-)
+void draw::hook()
 {
-	DDImage* ddimage = get_DDImage(g);
-	Color* color = get_Color(g);
-	DrawMode* draw_mode = get_DrawMode(g);
-
-	float_t* mTransX = get_mTransX(g);
-	float_t* mTransY = get_mTransY(g);
-
-	ddimage::DrawLine(
-		ddimage,
-		*mTransX + theStartX,
-		*mTransY + theStartY,
-		*mTransX + theEndX,
-		*mTransY + theEndY,
-		*color, *draw_mode
+	// POST僵尸绘制
+	MH_CreateHook(
+		POST_ZOMBIE_DRAW,
+		&post_hook_helper,
+		reinterpret_cast<LPVOID*>(&post_zombie_draw_origin)
 	);
-}
-
-void ddimage::DrawLine(
-	DDImage* ddimage, 
-	double_t theStartX, 
-	double_t theStartY, 
-	double_t theEndX, 
-	double_t theEndY, 
-	const Color& theColor, 
-	DrawMode theDrawMode
-)
-{
-	using DrawLine = void(__thiscall*)
-	(
-		DDImage* ddimage, 
-		double_t theStartX, 
-		double_t theStartY, 
-		double_t theEndX, 
-		double_t theEndY, 
-		const Color& theColor, 
-		DrawMode theDrawMode
-	);
-
-	DrawLine fn = reinterpret_cast<DrawLine>(0x0056E6A0);
-
-	fn(
-		ddimage, 
-		theStartX, 
-		theStartY, 
-		theEndX, 
-		theEndY, 
-		theColor, 
-		theDrawMode
-	);
+	MH_EnableHook(POST_ZOMBIE_DRAW);
 }

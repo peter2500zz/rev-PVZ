@@ -1,30 +1,10 @@
 ﻿// dllmain.cpp : 定义 DLL 应用程序的入口点。
 #include "pch.h"
-#include "dllmain.h"
 
 #include "board.h"
-#include "graphics.h"
 #include "lawn_app.h"
+#include "hook.h"
 
-
-BOOL APIENTRY DllMain(
-	HMODULE hModule,
-	DWORD  ul_reason_for_call,
-	LPVOID lpReserved
-)
-{
-	switch (ul_reason_for_call)
-	{
-	case DLL_PROCESS_ATTACH:
-		at_attach();
-		break;
-	case DLL_THREAD_ATTACH:
-	case DLL_THREAD_DETACH:
-	case DLL_PROCESS_DETACH:
-		break;
-	}
-	return TRUE;
-}
 
 // 目标函数签名
 using TargetFn = void(__thiscall*)(Board* board, int keycode);
@@ -39,7 +19,7 @@ static TargetFn gOriginal = nullptr;
 void __fastcall hook_func(Board* board, void* edx, int keycode)
 {
 	LawnApp* app = lawn_app::from_base_address(0x6A9EC0);
-	WidgetManager* wm = lawn_app::get_widget_manager(app);
+	WidgetManager* wm = lawn_app::get_WidgetManager(app);
 	//Board* board = lawn_app::get_board(app);
 
 	auto [x, y] = widget_manager::mouse_pos(wm);
@@ -78,80 +58,47 @@ void __fastcall hook_func(Board* board, void* edx, int keycode)
 	gOriginal(board, keycode);
 }
 
-using post_draw_zombie = void (*)();
 
-static post_draw_zombie gpost_draw_zombie = nullptr;
-
-void __stdcall helper(Zombie* zombie, Graphics* g)
-{
-	//Graphics* g_1 = graphics::Create(g);
-
-	uint32_t* x = zombie::get_hit_x(zombie);
-	uint32_t* y = zombie::get_hit_y(zombie);
-	uint32_t* w = zombie::get_hit_w(zombie);
-	uint32_t* h = zombie::get_hit_h(zombie);
-
-	graphics::SetColor(g, color::red());
-	graphics::DrawRect(g, *x, *y, *w, *h);
-	graphics::DrawLine(g, 0, 0, *x, *y);
-
-	//graphics::destructor(g_1);
-}
-
-__declspec(naked) void hf()
-{
-	__asm {
-		pushad
-		pushfd
-
-		push ebp
-		push ebx
-		call helper
-
-		popfd
-		popad
-
-		jmp gpost_draw_zombie
-	}
-}
 
 /// <summary>
 /// 当DLL成功附加到程序上的时候就会触发这个函数
 /// </summary>
 void at_attach()
 {
+
+
 	if (MH_Initialize() == MH_OK)
 	{
-		LPVOID target = reinterpret_cast<LPVOID>(0x0041B820);
+		startup::hook();
+		draw::hook();
+		classlifetime::hook();
 
 		MH_CreateHook(
-			target,
+			PRE_BOARD_KEYDOWN,
 			&hook_func,
 			reinterpret_cast<LPVOID*>(&gOriginal)
 		);
-		MH_EnableHook(target);
-
-		LPVOID draw_zombie = reinterpret_cast<LPVOID>(0x0052E49F);
-
-		MH_CreateHook(
-			draw_zombie,
-			hf,
-			reinterpret_cast<LPVOID*>(&gpost_draw_zombie)
-		);
-		MH_EnableHook(draw_zombie);
+		MH_EnableHook(PRE_BOARD_KEYDOWN);
 	}
-
-	// 如果窗口出来了这里大概是拿得到句柄的
-	HWND hwnd = FindWindowA(nullptr, "Plants vs. Zombies");
-
-	if (hwnd != nullptr)
-	{
-		// LOL
-		SetWindowTextA(hwnd, "Plants vs. Zombies (hooked)");
-	}
-
-	// 管你这那的叫一声再说
-	MessageBeep(MB_ICONINFORMATION);
 }
 
 
+
+BOOL APIENTRY DllMain(
+	HMODULE hModule,
+	DWORD  ul_reason_for_call,
+	LPVOID lpReserved
+)
+{
+	switch (ul_reason_for_call)
+	{
+	case DLL_PROCESS_ATTACH:
+		at_attach();
+		break;
+	case DLL_THREAD_ATTACH:
+	case DLL_THREAD_DETACH:
+	case DLL_PROCESS_DETACH:
+		break;
+	}
+	return TRUE;
+}
