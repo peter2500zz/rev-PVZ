@@ -14,7 +14,7 @@ namespace
 	// 在LawnApp构造完毕后赋值指针
 	void __stdcall post_lawn_app_constructor(LawnApp* lawn_app)
 	{
-		debug(L"LawnApp被构造");
+		//debug(L"LawnApp被构造");
 
 		theLawnApp = lawn_app;
 	}
@@ -43,7 +43,7 @@ namespace
 	{
 		theLawnApp = nullptr;
 
-		debug(L"LawnApp析构成功");
+		//debug(L"LawnApp析构成功");
 
 		post_lawn_app_destructor_origin();
 	}
@@ -53,7 +53,7 @@ namespace
 
 	void __stdcall post_widget_manager_constructor(WidgetManager* wm)
 	{
-		debug(L"WidgetManager被构造");
+		//debug(L"WidgetManager被构造");
 
 		theWidgetManager = wm;
 	}
@@ -81,7 +81,7 @@ namespace
 	{
 		theWidgetManager = nullptr;
 
-		debug(L"WidgetManager析构成功");
+		//debug(L"WidgetManager析构成功");
 
 		post_widget_manager_destructor_origin();
 	}

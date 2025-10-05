@@ -156,6 +156,7 @@
     <ClInclude Include="hook.h" />
     <ClInclude Include="lawn_app.h" />
     <ClInclude Include="pch.h" />
+    <ClInclude Include="plant.h" />
     <ClInclude Include="widget_manager.h" />
     <ClInclude Include="zombie.h" />
   </ItemGroup>

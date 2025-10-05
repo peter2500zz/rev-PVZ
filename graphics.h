@@ -1,5 +1,13 @@
 ﻿#pragma once
 
+struct Font;
+
+// 字体
+namespace font
+{
+    inline Font* FONT_BRIANNETOD16 = *reinterpret_cast<Font**>(0x006A7224);
+}
+
 struct Color
 {
     DWORD r;
@@ -29,6 +37,8 @@ namespace color
             255
         };
     }
+
+    inline Color invisible() { return Color{ 0,   0,   0, 0 }; }
 
     inline Color black() { return Color{ 0,   0,   0, 255 }; }
     inline Color white() { return Color{ 255, 255, 255, 255 }; }
@@ -87,7 +97,40 @@ namespace ddimage
     }
 }
 
-struct Graphics;
+struct Graphics
+{   // 0x68
+    // 0x0 vtable*
+    // 0x4 DDImage*
+	// 0x8 uint32_t mTransX
+    // 0xC uint32_t mTransY
+    // ...
+    // 0x30 Color
+	// 0x40 Font*
+    // 0x44 DrawMode*
+    // ...
+};
+
+struct FakeMsvcString32
+{
+    uint32_t pad0;        // [0] 未用
+    const char* ptr;      // [1] -> 你的 C 字符串缓冲
+    uint32_t pad8;        // [2] 未用
+    uint32_t padC;        // [3] 未用
+    uint32_t pad10;       // [4] 未用
+    uint32_t size;        // [5] -> 长度
+    uint32_t capacity;    // [6] -> 容量 (>=16 以禁用SSO)
+};
+
+inline FakeMsvcString32 MakeFakeFrom(const std::string& s)
+{
+    FakeMsvcString32 f{};
+    f.ptr = s.data();                                 // 只读指针
+    f.size = static_cast<uint32_t>(s.size());
+    uint32_t cap = f.size + 1;
+    if (cap < 16) cap = 16;                           // 强制非 SSO
+    f.capacity = cap;
+    return f;
+}
 
 namespace graphics
 {
@@ -147,6 +190,17 @@ namespace graphics
         }
     }
 
+    inline void SetFont(Graphics* g, Font* theFont)
+	{
+		__asm {
+            mov eax, g
+            mov ecx, theFont
+
+            mov edx, 0x00586CB0
+            call edx
+		}
+	}
+
 	inline void DrawRect(
         Graphics* g,
         uint32_t theX,
@@ -163,6 +217,26 @@ namespace graphics
             mov eax, g
 
             mov edx, 0x00586DE0
+            call edx
+        }
+    }
+
+    inline void FillRect(
+        Graphics* g,
+        uint32_t theX,
+        uint32_t theY,
+        uint32_t theWidth,
+        uint32_t theHeight
+    )
+    {
+        __asm {
+            push theHeight
+            push theWidth
+            push theY
+            push theX
+            mov eax, g
+
+            mov edx, 0x00586D50
             call edx
         }
     }
@@ -191,4 +265,31 @@ namespace graphics
             *color, *draw_mode
         );
     }
+
+    inline uint32_t DrawStringWordWrapped(Graphics* g, uint32_t theX, uint32_t theY, const std::string& line)
+	{
+        uint32_t stringHeight;
+
+        const FakeMsvcString32 fake = MakeFakeFrom(line);
+
+        __asm {
+            push ebx
+            push esi
+
+            push theY
+            lea  ebx, fake
+            mov esi, g
+            mov eax, theX
+
+            mov edx, 0x005886B0
+            call edx
+
+            mov stringHeight, eax
+
+            pop esi
+            pop ebx
+        }
+
+        return stringHeight;
+	}
 }

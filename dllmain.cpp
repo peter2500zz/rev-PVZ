@@ -32,7 +32,11 @@ void __fastcall hook_func(Board* board, void* edx, int keycode)
 		// A
 	case 65:
 	{
-		Coin* coin = board::AddCoin(board, x, y, CoinType::Sun, CoinMotion::CollectImmediately);
+		Coin* coin = board::AddCoin(board, x, y, CoinType::Sun, CoinMotion::PopFromBack);
+
+		//debug(fmt::format(L"{:#x}", reinterpret_cast<uintptr_t>(coin)).c_str());
+		//coin->vy = -30;
+		//coin->scale = 10.5;
 
 		break;
 	}
@@ -40,7 +44,12 @@ void __fastcall hook_func(Board* board, void* edx, int keycode)
 	{
 		Zombie* zombie = board::alloc_zombie(board);
 		zombie::ZombieInitialize(zombie, grid_y, ZombieType::ZOMBIE_NORMAL, false, nullptr, 0);
-		zombie::RiseFromGrave(zombie, grid_x, grid_y);
+		//zombie::RiseFromGrave(zombie, grid_x, grid_y);
+
+		zombie->x = x;
+		zombie->y = y - zombie->hit_h;
+
+		zombie->motion_state = 3;
 
 		//debug(fmt::format(L"hitx:{} hity:{} hitw:{} hith:{}", *zombie::get_hit_x(zombie), *zombie::get_hit_y(zombie), *zombie::get_hit_w(zombie), *zombie::get_hit_h(zombie)).c_str());
 

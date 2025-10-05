@@ -23,4 +23,12 @@ namespace lawn_app
 	{
 		return *reinterpret_cast<WidgetManager**>(reinterpret_cast<uintptr_t>(lawn_app) + 0x320);
 	}
+
+	inline std::pair<uint32_t, uint32_t> window_size(LawnApp* lawn_app)
+	{
+		uint32_t w = *reinterpret_cast<uint32_t*>(reinterpret_cast<uintptr_t>(lawn_app) + 0xC0);
+		uint32_t h = *reinterpret_cast<uint32_t*>(reinterpret_cast<uintptr_t>(lawn_app) + 0xC4);
+
+		return { w, h };
+	}
 }
